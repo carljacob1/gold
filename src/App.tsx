@@ -33,7 +33,7 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route element={<Layout />}>
-            <Route path="" element={<Auth />} />
+            <Route path="/auth" element={<Auth />} />
             <Route path="/" element={<RequireAuth><Index /></RequireAuth>} />
             <Route path="/gold-collection" element={<GoldCollection />} />
             <Route path="/precious-stones" element={<PreciousStones />} />
