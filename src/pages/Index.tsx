@@ -65,19 +65,37 @@ const Index = () => {
   // Use standardized key for craftsmen - data will be auto-populated by seedWebData
   const { data: craftsmen, updateData: setCraftsmen } = useOfflineStorage<Craftsman[]>('craftsmen', []);
 
-  const filteredItems = items.filter(item =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.gemstone.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredItems = items.filter(item => {
+    const name = (item?.name || '').toLowerCase();
+    const type = (item?.type || '').toLowerCase();
+    const gemstone = (item?.gemstone || '').toLowerCase();
+    const query = searchQuery.toLowerCase();
+    return name.includes(query) || type.includes(query) || gemstone.includes(query);
+  });
 
-  const totalValue = items.reduce((sum, item) => sum + (item.price * item.inStock), 0);
-  const totalItems = items.reduce((sum, item) => sum + item.inStock, 0);
-  const lowStockItems = items.filter(item => item.inStock < 5).length;
+  const totalValue = items.reduce((sum, item) => {
+    const price = typeof item.price === 'number' && !isNaN(item.price) ? item.price : 0;
+    const inStock = typeof item.inStock === 'number' && !isNaN(item.inStock) ? item.inStock : 0;
+    return sum + (price * inStock);
+  }, 0);
+  const totalItems = items.reduce((sum, item) => {
+    const inStock = typeof item.inStock === 'number' && !isNaN(item.inStock) ? item.inStock : 0;
+    return sum + inStock;
+  }, 0);
+  const lowStockItems = items.filter(item => {
+    const inStock = typeof item.inStock === 'number' && !isNaN(item.inStock) ? item.inStock : 0;
+    return inStock < 5;
+  }).length;
   const todayRevenue = transactions
     .filter(t => new Date(t.timestamp).toDateString() === new Date().toDateString())
-    .reduce((sum, t) => sum + t.total, 0);
-  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    .reduce((sum, t) => {
+      const total = typeof t.total === 'number' && !isNaN(t.total) ? t.total : 0;
+      return sum + total;
+    }, 0);
+  const cartCount = cartItems.reduce((sum, item) => {
+    const quantity = typeof item.quantity === 'number' && !isNaN(item.quantity) ? item.quantity : 0;
+    return sum + quantity;
+  }, 0);
 
   const handleAddItem = (newItem: Omit<JewelryItem, 'id'>) => {
     const item: JewelryItem = {
